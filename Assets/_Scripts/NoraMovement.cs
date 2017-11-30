@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class NoraMovement : MonoBehaviour {
 
@@ -19,18 +20,36 @@ public class NoraMovement : MonoBehaviour {
     private Vector2 rightMove;
     private Vector2 stopMove;
 
+    private int stepsLeft;
+    public int minimumInterval;
+    public int maximumInterval;
+
+    private bool canDecrementSteps = true;
+
+    public GameObject sceneStuff;
 
 
 	// Use this for initialization
 	void Start () {
+
+        GameCore.mainSceneStuff = this.sceneStuff;
+
         this.rb = this.GetComponent<Rigidbody2D>();
         this.anim = this.GetComponent<Animator>();
+
+        this.resetStepTimer();
 
         this.upMove = new Vector2(0, 1) * speed;
         this.downMove = new Vector2(0, -1) * speed;
         this.leftMove = new Vector2(-1, 0) * speed;
         this.rightMove = new Vector2(1, 0) * speed;
         this.stopMove = Vector2.zero;
+
+        SceneManager.sceneUnloaded += delegate {
+            resetStepTimer();
+            this.canDecrementSteps = true;
+        };
+
 	}
 	
 	// Update is called once per frame
@@ -47,21 +66,25 @@ public class NoraMovement : MonoBehaviour {
         {
             this.anim.SetTrigger("up");
             this.rb.velocity = upMove;
+            subtractStep();
         }
         else if (Input.GetKey(this.downKey))
         {
             this.anim.SetTrigger("down");
             this.rb.velocity = downMove;
+            subtractStep();
         }
         else if (Input.GetKey(this.leftKey))
         {
             this.anim.SetTrigger("left");
             this.rb.velocity = leftMove;
+            subtractStep();
         }
         else if (Input.GetKey(this.rightKey))
         {
             this.anim.SetTrigger("right");
             this.rb.velocity = rightMove;
+            subtractStep();
         }
         else
         {
@@ -69,79 +92,36 @@ public class NoraMovement : MonoBehaviour {
             // TODO: Set trigger for the idle animation when we add it.
         }
 
-
-        /*
-        print("moveHorizontal = " + moveHorizontal);
-        print("moveVertical = " + moveVertical);
-
-        Vector2 movement = new Vector2(moveHorizontal, moveVertical);
-
-        this.rb.AddForce(movement * speed);
-
-        string currDirX = CurrentDirectionX(moveHorizontal);
-        string currDirY = CurrentDirectionY(moveVertical);
-
-        if (currDirX.Equals("none"))
-        {
-            if (!currDirY.Equals("none"))
-            {
-                // Moving vertically only.
-                print("Animating " + currDirY);
-                this.anim.SetTrigger(currDirY);
-            }
-            // Not moving.
-        }
-        else if (currDirY.Equals("none"))
-        {
-            if (!currDirX.Equals("none"))
-            {
-                // Moving horizontally only.
-                print("Animating " + currDirX);
-                this.anim.SetTrigger(currDirX);
-            }
-            // Not moving.
-        }
-        else
-        {
-            // Moving in more than one direction. What do we do?
-        }
-        */
-
-
-
-
     }
 
-    private string CurrentDirectionX(float movementX)
+    // Unnecessary?
+    void setFightSceneActive()
     {
-        if (movementX < 0)
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName("FightScene"));
+    }
+
+
+    private void subtractStep()
+    {
+        if (canDecrementSteps)
         {
-            return "left";
-        }
-        else if (movementX > 0)
-        {
-            return "right";
-        }
-        else
-        {
-            return "none";
+            this.stepsLeft--;
+            print(stepsLeft);
+            if (stepsLeft <= 0)
+            {
+                this.canDecrementSteps = false;
+                print("Start fight!");
+                SceneManager.LoadScene("FightScene", LoadSceneMode.Additive);
+            }
         }
     }
 
-    private string CurrentDirectionY(float movementY)
+
+    private void resetStepTimer()
     {
-        if (movementY < 0)
-        {
-            return "down";
-        }
-        else if (movementY > 0)
-        {
-            return "up";
-        }
-        else
-        {
-            return "none";
-        }
+        this.stepsLeft = Random.Range(minimumInterval, maximumInterval);
     }
+
+
 
 }

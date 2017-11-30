@@ -13,7 +13,6 @@ public class SpawnRandomEnemy : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         this.randGenerator = new System.Random();
-
 	}
 	
 	// Update is called once per frame
@@ -26,7 +25,7 @@ public class SpawnRandomEnemy : MonoBehaviour {
         if (!timerIsSet)
         {
             timerIsSet = true;
-            int interval = randGenerator.Next(minimumInterval, maximumInterval);
+            int interval = randGenerator.Next(minimumInterval, maximumInterval + 1);
             Invoke("spawnEnemy", interval);
         }
     }

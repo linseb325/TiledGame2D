@@ -1,8 +1,10 @@
 ﻿<Properties StartupConfiguration="{4FA114D7-D43C-7F95-9F16-CA2F393F2FC1}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/_Scripts/SpawnRandomEnemy.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Enemy.cs">
     <Files>
-      <File FileName="Assets/_Scripts/NoraMovement.cs" Line="67" Column="10" />
-      <File FileName="Assets/_Scripts/SpawnRandomEnemy.cs" Line="7" Column="17" />
+      <File FileName="Assets/_Scripts/NoraMovement.cs" Line="114" Column="78" />
+      <File FileName="Assets/_Scripts/NoraFight.cs" Line="41" Column="54" />
+      <File FileName="Assets/_Scripts/GameCore.cs" Line="9" Column="5" />
+      <File FileName="Assets/Enemy.cs" Line="7" Column="24" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
