@@ -33,6 +33,7 @@ public class NoraMovement : MonoBehaviour {
 	void Start () {
 
         GameCore.mainSceneStuff = this.sceneStuff;
+        GameCore.playerStats = new NPCStats(15, 3, 12);
 
         this.rb = this.GetComponent<Rigidbody2D>();
         this.anim = this.GetComponent<Animator>();
@@ -121,7 +122,5 @@ public class NoraMovement : MonoBehaviour {
     {
         this.stepsLeft = Random.Range(minimumInterval, maximumInterval);
     }
-
-
 
 }

@@ -5,12 +5,16 @@ using UnityEngine;
 public class Enemy : MonoBehaviour {
 
     public AudioClip[] audioClips;
+    private EnemyContainer myContainer;
 
 
 
 	// Use this for initialization
 	void Start () {
-        
+
+        this.myContainer = new EnemyContainer(new NPCStats(10, 3, 12), this.gameObject);
+        GameCore.currentEnemy = this.myContainer;
+
         // Play all audio clips back-to-back.
         float currDelay = 0;
         AudioSource currAudioPlayer;
