@@ -29,7 +29,11 @@ public class NoraFight : MonoBehaviour
     public Text enemyHPText;
     public Text enemyMPText;
 
+    public Text upperDisplayText;
+    public Text lowerDisplayText;
+
     private string[] enemyAttacks = new string[] { "Punch", "Machine Gun" };
+    public float delayBetweenTurns;
 
 
 	// Use this for initialization
@@ -47,7 +51,7 @@ public class NoraFight : MonoBehaviour
 
         this.audioPlayer = this.GetComponent<AudioSource>();
 
-        Invoke("updateStatsUI", 1f);
+        Invoke("updateStatsUI", 0.5f);
 	}
 
     private void FixedUpdate()
@@ -76,20 +80,21 @@ public class NoraFight : MonoBehaviour
                 this.selectedIndex++;
                 this.arrow.transform.position = arrowPositions[selectedIndex % 2];
             }
-            else if (Input.GetKeyDown(KeyCode.Return) && isMyTurn && !attackAnimator.animationInProgress)
+            else if (Input.GetKeyDown(KeyCode.Return) && isMyTurn && !attackAnimator.animationInProgress && !GameCore.currentEnemy.attackAnimator.animationInProgress)
             {
-                // Nora selected an attack
+                // Nora selected an attack.
 
                 // Check whether Nora selected taze without any magic points left
                 if ((Mathf.Abs((this.arrow.transform.position.y - arrowPos0.y)) <= .1f) && !canUseMagic())
                 {
-                    print("Nora doesn't have enough magic points to taze! Select a different attack.");
+                    displayToScreen("Not enough magic points! Select a different attack.", "upper");
+                    displayToScreen("", "lower");
                 }
                 else
                 {
                     // Selected a valid attack. Roll the dice.
                     int diceRoll = GameCore.rollDice(20);
-                    print("Rolled a " + diceRoll);
+                    displayToScreen("Nora rolled a " + diceRoll, "upper");
 
                     // Check to see if the roll was high enough to attack
                     if (diceRoll >= GameCore.currentEnemy.stats.getAC())
@@ -107,19 +112,18 @@ public class NoraFight : MonoBehaviour
                             {
                                 // Selected taze and can taze
                                 this.attackAnimator.animateOneShot();
-                                print("TAZE!");
+                                displayToScreen("Nora tazed!", "lower");
 
                                 GameCore.currentEnemy.stats.reduceHP(2);
                                 GameCore.playerStats.reduceMP(1);
 
-                                printCurrentFightStats();
                                 updateStatsUI();
                                 checkForKoolaidDeathAndSwitch();
                             }
                             else
                             {
                                 // Selected taze but can't taze
-                                print("Nora doesn't have enough magic points to taze! Select a different attack.");
+                                displayToScreen("Not enough magic points! Select a different attack.", "upper");
                             }
                         }
                         else if (Mathf.Abs((this.arrow.transform.position.y - arrowPos1.y)) <= .1f)
@@ -127,10 +131,9 @@ public class NoraFight : MonoBehaviour
                             // Selected ninja
                             this.attackAnimator.animateOneShot();
 
-                            print("NINJA!");
+                            displayToScreen("Nora used ninja!", "lower");
                             GameCore.currentEnemy.stats.reduceHP(1);
 
-                            printCurrentFightStats();
                             updateStatsUI();
                             checkForKoolaidDeathAndSwitch();
                         }
@@ -139,7 +142,7 @@ public class NoraFight : MonoBehaviour
                     else
                     {
                         // Bad dice roll
-                        print("Nora can't attack - dice roll too low!");
+                        displayToScreen("Nora can't attack - dice roll too low!", "lower");
                         checkForKoolaidDeathAndSwitch();
                     }
 
@@ -159,19 +162,21 @@ public class NoraFight : MonoBehaviour
         print("Koolaid's HP: " + GameCore.currentEnemy.stats.getHP() + "\n" + "               MP: " + GameCore.currentEnemy.stats.getMP());
     }
 
+    // Did Nora die? If not, switch to player's turn.
     private void checkForNoraDeathAndSwitch()
     {
         if (GameCore.playerStats.getHP() <= 0)
         {
             // Koolaid wins!
-            print("Koolaid wins the fight!");
+            displayToScreen("KOOL-AID WINS THE FIGHT!", "upper");
+            displayToScreen("", "lower");
             canPressButtons = false;
 
             // Play game over music
             this.audioPlayer.clip = this.enemyWinsMusic;
             this.audioPlayer.Play(); // TODO: Fix looping "game over" sound effect
 
-            // Back to the map
+            // To game over screen
             Invoke("backToMap", 5f);
         }
         else
@@ -182,12 +187,14 @@ public class NoraFight : MonoBehaviour
         }
     }
 
+    // Did Koolaid die? If not, switch to enemy's turn.
     private void checkForKoolaidDeathAndSwitch()
     {
         if (GameCore.currentEnemy.stats.getHP() <= 0)
         {
             // Nora wins!
-            print("Nora wins the fight!");
+            displayToScreen("NORA WINS THE FIGHT!", "upper");
+            displayToScreen("", "lower");
             canPressButtons = false;
 
             // Play win music
@@ -201,12 +208,15 @@ public class NoraFight : MonoBehaviour
         {
             // Back to Koolaid's turn to attack
             this.isMyTurn = false;
-            enemyTakesTurn(enemyAttacks);
+            StartCoroutine(enemyTakesTurn(enemyAttacks));
         }
     }
 
-    private void enemyTakesTurn(string[] attacks)
+    private IEnumerator enemyTakesTurn(string[] attacks)
     {
+        // Two-second delay between the end of Nora's attack and the beginning of the enemy's attack
+        yield return new WaitForSecondsRealtime(delayBetweenTurns);
+
         // Select an attack
         string selectedAttack;
         if (GameCore.currentEnemy.stats.getMP() <= 0)
@@ -222,6 +232,7 @@ public class NoraFight : MonoBehaviour
 
         // Roll the dice to see if the enemy can attack
         int diceRoll = GameCore.rollDice(20);
+        displayToScreen("Enemy rolled a " + diceRoll, "upper");
 
         if (diceRoll >= GameCore.playerStats.getAC())
         {
@@ -229,27 +240,25 @@ public class NoraFight : MonoBehaviour
             if (selectedAttack.Equals("Punch"))
             {
                 // Punch attack
-                print("ENEMY PUNCHED");
+                displayToScreen("Enemy punched!", "lower");
                 GameCore.currentEnemy.attackAnimator.animateOneShot();
                 GameCore.playerStats.reduceHP(1);
                 this.updateStatsUI();
-                printCurrentFightStats();
             }
             else if (selectedAttack.Equals("Machine Gun"))
             {
                 // Machine gun attack
-                print("ENEMY USED MACHINE GUN");
+                displayToScreen("Enemy used machine gun!", "lower");
                 GameCore.currentEnemy.attackAnimator.animateOneShot();
                 GameCore.playerStats.reduceHP(2);
                 GameCore.currentEnemy.stats.reduceMP(1);
                 this.updateStatsUI();
-                printCurrentFightStats();
             }
         }
         else
         {
             // Bad dice roll. Enemy can't attack
-            print("Enemy can't attack - dice roll too low!");
+            displayToScreen("Enemy can't attack - dice roll too low!", "lower");
         }
 
         checkForNoraDeathAndSwitch();
@@ -261,6 +270,13 @@ public class NoraFight : MonoBehaviour
         SceneManager.UnloadSceneAsync("FightScene");
     }
 
+    private void toGameOverScreen()
+    {
+        SceneManager.LoadSceneAsync("GameOver");
+        SceneManager.UnloadSceneAsync("FightScene");
+    }
+
+    // Grabs the HP and MP stats from the singleton for both player and enemy.
     private void updateStatsUI()
     {
         this.noraHPText.text = GameCore.playerStats.getHP().ToString();
@@ -268,6 +284,82 @@ public class NoraFight : MonoBehaviour
         this.enemyHPText.text = GameCore.currentEnemy.stats.getHP().ToString();
         this.enemyMPText.text = GameCore.currentEnemy.stats.getMP().ToString();
     }
+
+
+
+
+
+    private void displayToScreen(string message, string location, float maxDuration = -1f)
+    {
+        if (location.Equals("upper"))
+        {
+            this.upperDisplayText.text = message;
+
+            // Only make the text disappear after duration if the user supplies that argument.
+            if (!(Mathf.Abs(maxDuration + 1f) < .001f))
+            {
+                StartCoroutine(clearUpperDisplayText(message, maxDuration));
+            }
+        }
+        else if (location.Equals("lower"))
+        {
+            this.lowerDisplayText.text = message;
+
+            // Only make the text disappear after duration if the user supplies that argument.
+            if (!(Mathf.Abs(maxDuration + 1f) < .001f))
+            {
+                StartCoroutine(clearLowerDisplayText(message, maxDuration));
+            }
+        }
+        else
+        {
+            print("Invalid argument passed for location in displayToScreen!");
+        }
+
+    }
+
+    /*
+    private void clearUpperDisplayText()
+    {
+        this.upperDisplayText.text = "";
+    }
+
+    private void clearLowerDisplayText()
+    {
+        this.lowerDisplayText.text = "";
+    }
+    */
+
+    // Clear the upper display after a delay, but only if it's still showing message.
+    // Ensures we don't wipe out a later message.
+    private IEnumerator clearUpperDisplayText(string message, float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+
+        if (upperDisplayText.text.Equals(message))
+        {
+            this.upperDisplayText.text = "";
+        }
+    }
+
+    // Clear the upper display after a delay, but only if it's still showing message.
+    // Ensures we don't wipe out a later message.
+    private IEnumerator clearLowerDisplayText(string message, float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+
+        if (lowerDisplayText.text.Equals(message))
+        {
+            this.lowerDisplayText.text = "";
+        }
+    }
+
+
+
+
+
+
+
 
 
 
