@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class NoraFight : MonoBehaviour
 {
@@ -31,6 +32,11 @@ public class NoraFight : MonoBehaviour
     public AudioClip noraWinsMusic;
     public AudioClip enemyWinsMusic;
 
+    public Text noraHPText;
+    public Text noraMPText;
+    public Text enemyHPText;
+    public Text enemyMPText;
+
     private string[] enemyAttacks = new string[] { "Punch", "Machine Gun" };
 
 
@@ -50,6 +56,8 @@ public class NoraFight : MonoBehaviour
         endMarker = this.noraFightPos.transform;
 
         this.audioPlayer = this.GetComponent<AudioSource>();
+
+        Invoke("updateStatsUI", 1f);
 	}
 
     private void FixedUpdate()
@@ -167,6 +175,7 @@ public class NoraFight : MonoBehaviour
                                 GameCore.playerStats.reduceMP(1);
 
                                 printCurrentFightStats();
+                                updateStatsUI();
                                 checkForKoolaidDeathAndSwitch();
                             }
                             else
@@ -184,6 +193,7 @@ public class NoraFight : MonoBehaviour
                             GameCore.currentEnemy.stats.reduceHP(1);
 
                             printCurrentFightStats();
+                            updateStatsUI();
                             checkForKoolaidDeathAndSwitch();
                         }
 
@@ -282,6 +292,7 @@ public class NoraFight : MonoBehaviour
                 // Punch attack
                 print("ENEMY PUNCHED");
                 GameCore.playerStats.reduceHP(1);
+                this.updateStatsUI();
                 printCurrentFightStats();
             }
             else if (selectedAttack.Equals("Machine Gun"))
@@ -290,6 +301,7 @@ public class NoraFight : MonoBehaviour
                 print("ENEMY USED MACHINE GUN");
                 GameCore.playerStats.reduceHP(2);
                 GameCore.currentEnemy.stats.reduceMP(1);
+                this.updateStatsUI();
                 printCurrentFightStats();
             }
         }
@@ -306,6 +318,14 @@ public class NoraFight : MonoBehaviour
     {
         GameCore.mainSceneStuff.SetActive(true);
         SceneManager.UnloadSceneAsync("FightScene");
+    }
+
+    private void updateStatsUI()
+    {
+        this.noraHPText.text = GameCore.playerStats.getHP().ToString();
+        this.noraMPText.text = GameCore.playerStats.getMP().ToString();
+        this.enemyHPText.text = GameCore.currentEnemy.stats.getHP().ToString();
+        this.enemyMPText.text = GameCore.currentEnemy.stats.getMP().ToString();
     }
 
 

@@ -1,13 +1,14 @@
 ﻿<Properties StartupConfiguration="{922CB2A1-F9B0-4DD0-1709-276E62D50A16}|Unit Tests">
   <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/_Scripts/NoraFight.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/_Scripts/LerpBackForth.cs">
     <Files>
       <File FileName="Assets/_Scripts/NoraMovement.cs" Line="36" Column="56" />
-      <File FileName="Assets/_Scripts/NoraFight.cs" Line="224" Column="83" />
+      <File FileName="Assets/_Scripts/NoraFight.cs" Line="257" Column="13" />
       <File FileName="Assets/_Scripts/GameCore.cs" Line="22" Column="5" />
       <File FileName="Assets/Enemy.cs" Line="16" Column="50" />
       <File FileName="Assets/_Scripts/NPCStats.cs" Line="36" Column="5" />
       <File FileName="Assets/EnemyContainer.cs" Line="9" Column="1" />
+      <File FileName="Assets/_Scripts/LerpBackForth.cs" Line="5" Column="27" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
