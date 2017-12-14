@@ -20,20 +20,21 @@ public class LerpBackForth : MonoBehaviour {
 
     private bool isMoving;
 
+    [HideInInspector]
+    public bool animationInProgress = false;
+
 
 
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
         this.endPos = this.endMarker.transform.position;
-        this.startPos = (this.startMarker == null) ? this.endMarker.transform.position : this.gameObject.transform.position;
+        this.startPos = this.startMarker.transform.position;
 
         // If there's no start marker game object assigned, movement will start from this game object's current position.
-        if (startMarker == null)
-        {
-            print("No start marker game object. Defaulting to current player position for startPos.");
-            this.startPos = this.gameObject.transform.position;
-        }
+        // this.startPos = (this.startMarker == null) ? this.startMarker.transform.position : this.gameObject.transform.position;
+
 	}
 	
     void FixedUpdate()
@@ -56,6 +57,7 @@ public class LerpBackForth : MonoBehaviour {
                 else
                 {
                     // We're done moving.
+                    animationInProgress = false;
                     movingForward = true;
                     swapMarkers();
                 }
@@ -82,12 +84,18 @@ public class LerpBackForth : MonoBehaviour {
     {
         Vector3 temp = startPos;
         startPos = endPos;
-        endPos = startPos;
+        endPos = temp;
     }
 
     private void startMoving()
     {
+        animationInProgress = true;
         resetLengthAndTime();
         isMoving = true;
+    }
+
+    public void animateOneShot()
+    {
+        startMoving();
     }
 }

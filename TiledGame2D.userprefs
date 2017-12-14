@@ -3,12 +3,12 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/_Scripts/LerpBackForth.cs">
     <Files>
       <File FileName="Assets/_Scripts/NoraMovement.cs" Line="36" Column="56" />
-      <File FileName="Assets/_Scripts/NoraFight.cs" Line="257" Column="13" />
+      <File FileName="Assets/_Scripts/NoraFight.cs" Line="233" Column="45" />
       <File FileName="Assets/_Scripts/GameCore.cs" Line="22" Column="5" />
-      <File FileName="Assets/Enemy.cs" Line="16" Column="50" />
+      <File FileName="Assets/Enemy.cs" Line="11" Column="5" />
       <File FileName="Assets/_Scripts/NPCStats.cs" Line="36" Column="5" />
-      <File FileName="Assets/EnemyContainer.cs" Line="9" Column="1" />
-      <File FileName="Assets/_Scripts/LerpBackForth.cs" Line="5" Column="27" />
+      <File FileName="Assets/EnemyContainer.cs" Line="15" Column="46" />
+      <File FileName="Assets/_Scripts/LerpBackForth.cs" Line="42" Column="2" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
@@ -16,6 +16,7 @@
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp-Editor PreferredExecutionTarget="MonoDevelop.Default" />
   <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.ItemProperties.TiledGame2D PreferredExecutionTarget="Unity.Editor" />
 </Properties>

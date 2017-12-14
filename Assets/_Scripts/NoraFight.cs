@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class NoraFight : MonoBehaviour
 {
+    private LerpBackForth attackAnimator;
+
     public GameObject fightMenu;
     public GameObject arrow;
     public float offsetBetweenMenuOptions;
@@ -15,18 +17,8 @@ public class NoraFight : MonoBehaviour
     private Vector2 arrowPos1;
     private Vector2[] arrowPositions;
 
-    private bool isMoving = false;
     private bool canPressButtons = true;
     private bool isMyTurn = true;
-
-    public GameObject noraIdlePos;
-    public GameObject noraFightPos;
-
-    private Transform startMarker;
-    private Transform endMarker;
-    public float speed;
-    private float startTime;
-    private float journeyLength;
 
     private AudioSource audioPlayer;
     public AudioClip noraWinsMusic;
@@ -41,19 +33,17 @@ public class NoraFight : MonoBehaviour
 
 
 	// Use this for initialization
-	void Start () {
-
+	void Start ()
+    {
         GameCore.mainSceneStuff.SetActive(false);
+
+        this.attackAnimator = GetComponent<LerpBackForth>();
 
         arrowPos0 = this.arrow.transform.position;
         arrowPos1 = arrowPos0 + (offsetBetweenMenuOptions * Vector2.down);
         arrowPositions = new Vector2[2];
         arrowPositions[0] = arrowPos0;
         arrowPositions[1] = arrowPos1;
-
-        this.noraIdlePos.transform.position = this.transform.position;
-        startMarker = this.noraIdlePos.transform;
-        endMarker = this.noraFightPos.transform;
 
         this.audioPlayer = this.GetComponent<AudioSource>();
 
@@ -62,63 +52,8 @@ public class NoraFight : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (isMoving)
-        {
-            if (Mathf.Abs(this.transform.position.x - endMarker.position.x) < .01f)
-            {
-                // It's time to stop moving
-                stopMoving();
-                if (Mathf.Abs(endMarker.position.x - noraFightPos.transform.position.x) < .01f)
-                {
-                    // If we're in fighting position...
-                    // print("Reached fight pos");
-                    swapMarkers();
-                    Invoke("startMoving", 0.5f);
-                }
-                else if (Mathf.Abs(endMarker.position.x - noraIdlePos.transform.position.x) < .01f)
-                {
-                    // If we're back to the original idle position...
-                    // print("Reached idle pos");
-                    swapMarkers();
-                    canPressButtons = true;
-                }
-            }
-            else
-            {
-                // Move
-                float distCovered = (Time.time - startTime) * speed;
-                float fracJourney = distCovered / journeyLength;
-                this.transform.position = Vector3.Lerp(startMarker.position, endMarker.position, fracJourney);
-            }
-        }
+
     }
-
-    private void swapMarkers()
-    {
-        Transform temp = this.startMarker;
-        startMarker = endMarker;
-        endMarker = temp;
-    }
-
-    private void setUpLerpStuff()
-    {
-        this.journeyLength = Vector3.Distance(endMarker.position, startMarker.position);
-        startTime = Time.time;
-    }
-
-    private void startMoving()
-    {
-        setUpLerpStuff();
-        canPressButtons = false;
-        isMoving = true;
-    }
-
-    private void stopMoving()
-    {
-        isMoving = false;
-    }
-
-
 
     // Update is called once per frame
     void Update ()
@@ -141,7 +76,7 @@ public class NoraFight : MonoBehaviour
                 this.selectedIndex++;
                 this.arrow.transform.position = arrowPositions[selectedIndex % 2];
             }
-            else if (Input.GetKeyDown(KeyCode.Return) && isMyTurn)
+            else if (Input.GetKeyDown(KeyCode.Return) && isMyTurn && !attackAnimator.animationInProgress)
             {
                 // Nora selected an attack
 
@@ -152,14 +87,17 @@ public class NoraFight : MonoBehaviour
                 }
                 else
                 {
-                    // Roll the dice
+                    // Selected a valid attack. Roll the dice.
                     int diceRoll = GameCore.rollDice(20);
                     print("Rolled a " + diceRoll);
 
                     // Check to see if the roll was high enough to attack
                     if (diceRoll >= GameCore.currentEnemy.stats.getAC())
                     {
-                        // At this point, we know Nora can attack
+                        // At this point, we know Nora can attack.
+
+                        // Disable button presses.
+                        canPressButtons = false;
 
                         // Which attack did we select?
                         if (Mathf.Abs((this.arrow.transform.position.y - arrowPos0.y)) <= .1f)
@@ -168,9 +106,9 @@ public class NoraFight : MonoBehaviour
                             if (canUseMagic())
                             {
                                 // Selected taze and can taze
-                                startMoving();
-
+                                this.attackAnimator.animateOneShot();
                                 print("TAZE!");
+
                                 GameCore.currentEnemy.stats.reduceHP(2);
                                 GameCore.playerStats.reduceMP(1);
 
@@ -187,7 +125,7 @@ public class NoraFight : MonoBehaviour
                         else if (Mathf.Abs((this.arrow.transform.position.y - arrowPos1.y)) <= .1f)
                         {
                             // Selected ninja
-                            startMoving();
+                            this.attackAnimator.animateOneShot();
 
                             print("NINJA!");
                             GameCore.currentEnemy.stats.reduceHP(1);
@@ -240,6 +178,7 @@ public class NoraFight : MonoBehaviour
         {
             // Back to Nora's turn to attack
             this.isMyTurn = true;
+            canPressButtons = true;
         }
     }
 
@@ -277,7 +216,7 @@ public class NoraFight : MonoBehaviour
         }
         else
         {
-            // Selects a random attack name from the enemyAttacks array
+            // Select a random attack name from the enemyAttacks array
             selectedAttack = enemyAttacks[Random.Range(0, enemyAttacks.Length)];
         }
 
@@ -291,6 +230,7 @@ public class NoraFight : MonoBehaviour
             {
                 // Punch attack
                 print("ENEMY PUNCHED");
+                GameCore.currentEnemy.attackAnimator.animateOneShot();
                 GameCore.playerStats.reduceHP(1);
                 this.updateStatsUI();
                 printCurrentFightStats();
@@ -299,6 +239,7 @@ public class NoraFight : MonoBehaviour
             {
                 // Machine gun attack
                 print("ENEMY USED MACHINE GUN");
+                GameCore.currentEnemy.attackAnimator.animateOneShot();
                 GameCore.playerStats.reduceHP(2);
                 GameCore.currentEnemy.stats.reduceMP(1);
                 this.updateStatsUI();
