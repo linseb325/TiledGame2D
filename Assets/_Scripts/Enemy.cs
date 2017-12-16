@@ -12,7 +12,7 @@ public class Enemy : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-        this.myContainer = new EnemyContainer(new NPCStats(10, 3, 12), this.gameObject, this.gameObject.GetComponent<LerpBackForth>());
+        this.myContainer = new EnemyContainer(new NPCStats(8, 3, 12), this.gameObject, this.gameObject.GetComponent<LerpBackForth>());
         GameCore.currentEnemy = this.myContainer;
 
         // Play all audio clips back-to-back.

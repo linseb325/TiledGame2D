@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4FA114D7-D43C-7F95-9F16-CA2F393F2FC1}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AssemblyName>Assembly-CSharp.dll</AssemblyName>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
@@ -108,12 +108,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\_Scripts\Enemy.cs" />
+    <Compile Include="Assets\_Scripts\EnemyContainer.cs" />
     <Compile Include="Assets\_Scripts\GameCore.cs" />
+    <Compile Include="Assets\_Scripts\LerpBackForth.cs" />
     <Compile Include="Assets\_Scripts\NoraFight.cs" />
     <Compile Include="Assets\_Scripts\NoraMovement.cs" />
     <Compile Include="Assets\_Scripts\NPCStats.cs" />
     <Compile Include="Assets\_Scripts\SpawnRandomEnemy.cs" />
-    <Compile Include="Assets\Enemy.cs" />
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\CircleObject.cs" />
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\GameObjectExtensions.cs" />
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\GPUInstancing.cs" />

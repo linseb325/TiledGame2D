@@ -26,8 +26,10 @@ public class NoraFight : MonoBehaviour
 
     public Text noraHPText;
     public Text noraMPText;
+    public Text noraACText;
     public Text enemyHPText;
     public Text enemyMPText;
+    public Text enemyACText;
 
     public Text upperDisplayText;
     public Text lowerDisplayText;
@@ -64,13 +66,7 @@ public class NoraFight : MonoBehaviour
     {
         if (canPressButtons)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                // Exit the scene
-                GameCore.mainSceneStuff.SetActive(true);
-                SceneManager.UnloadSceneAsync("FightScene");
-            }
-            else if (Input.GetKeyDown(KeyCode.DownArrow))
+            if (Input.GetKeyDown(KeyCode.DownArrow))
             {
                 this.selectedIndex++;
                 this.arrow.transform.position = arrowPositions[selectedIndex % 2];
@@ -172,12 +168,8 @@ public class NoraFight : MonoBehaviour
             displayToScreen("", "lower");
             canPressButtons = false;
 
-            // Play game over music
-            this.audioPlayer.clip = this.enemyWinsMusic;
-            this.audioPlayer.Play(); // TODO: Fix looping "game over" sound effect
-
-            // To game over screen
-            Invoke("backToMap", 5f);
+            // Show game over screen
+            toGameOverScreen();
         }
         else
         {
@@ -281,21 +273,23 @@ public class NoraFight : MonoBehaviour
     {
         this.noraHPText.text = GameCore.playerStats.getHP().ToString();
         this.noraMPText.text = GameCore.playerStats.getMP().ToString();
+        this.noraACText.text = GameCore.playerStats.getAC().ToString();
         this.enemyHPText.text = GameCore.currentEnemy.stats.getHP().ToString();
         this.enemyMPText.text = GameCore.currentEnemy.stats.getMP().ToString();
+        this.enemyACText.text = GameCore.currentEnemy.stats.getAC().ToString();
     }
 
 
 
-
-
+    // Displays message on either the upper or lower part of the prompt area, depending on the 'location' parameter.
+    // Didn't end up using maxDuration in the implementation.
     private void displayToScreen(string message, string location, float maxDuration = -1f)
     {
         if (location.Equals("upper"))
         {
             this.upperDisplayText.text = message;
 
-            // Only make the text disappear after duration if the user supplies that argument.
+            // Only make the text disappear after maxDuration if the user supplies that argument.
             if (!(Mathf.Abs(maxDuration + 1f) < .001f))
             {
                 StartCoroutine(clearUpperDisplayText(message, maxDuration));
@@ -305,7 +299,7 @@ public class NoraFight : MonoBehaviour
         {
             this.lowerDisplayText.text = message;
 
-            // Only make the text disappear after duration if the user supplies that argument.
+            // Only make the text disappear after maxDuration if the user supplies that argument.
             if (!(Mathf.Abs(maxDuration + 1f) < .001f))
             {
                 StartCoroutine(clearLowerDisplayText(message, maxDuration));
@@ -342,7 +336,7 @@ public class NoraFight : MonoBehaviour
         }
     }
 
-    // Clear the upper display after a delay, but only if it's still showing message.
+    // Clear the lower display after a delay, but only if it's still showing message.
     // Ensures we don't wipe out a later message.
     private IEnumerator clearLowerDisplayText(string message, float delay)
     {
